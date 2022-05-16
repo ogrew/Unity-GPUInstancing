@@ -24,17 +24,23 @@ Shader "Custom/InstancedIndirectColor"
             #pragma multi_compile_fwdbase_fullshadows
 
             struct v2f {
-                float4 pos          : SV_POSITION;
-                fixed4 color        : COLOR;
-                SHADOW_COORDS(0)
+                float4 pos      : SV_POSITION;
+                fixed4 color    : COLOR;
+                float2 uv       : TEXCOORD0;
+                SHADOW_COORDS(1)
             };
 
-            v2f vert(appdata_full i, uint instanceID : SV_InstanceID) {
+            float map(float v, float min1, float max1, float min2, float max2) {
+                return min2 + (v - min1) * (max2 - min2) / (max1 - min1);
+            }
+
+            v2f vert(appdata_full v, uint instanceID : SV_InstanceID) {
                 MeshProperties props = _Properties[instanceID];
 
                 v2f o;
-                float4 pp = mul(props.mat, i.vertex);
+                float4 pp = mul(props.mat, v.vertex);
                 o.pos = UnityObjectToClipPos(pp);
+                o.uv = v.texcoord;
                 o.color = props.color;
 
                 TRANSFER_SHADOW(o)
@@ -43,7 +49,10 @@ Shader "Custom/InstancedIndirectColor"
             }
 
             fixed4 frag(v2f i) : SV_Target {
-                return i.color;
+                fixed4 col = i.color;
+                fixed4 shadow = map(SHADOW_ATTENUATION(i), 0, 1, 0.5, 1);
+                col *= shadow;
+                return col;
             }
             ENDCG
         }
@@ -66,10 +75,12 @@ Shader "Custom/InstancedIndirectColor"
                 MeshProperties props = _Properties[instanceID];
 
                 v2f_shadow o;
+
                 TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
 
                 float4 pp = mul(props.mat, v.vertex);
                 o.pos = UnityObjectToClipPos(pp);
+
                 return o;
             }
 

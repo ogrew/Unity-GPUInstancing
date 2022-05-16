@@ -6,11 +6,11 @@ using UnityEngine.UI;
 
 public class DrawMeshInstancedIndirect_demo : MonoBehaviour
 {
-    public int count = 10000;
-    public float radius = 10;
-    public Mesh copyMesh;
-    public Material material;
-    public Vector3 positionOffset;
+    [SerializeField] private int count = 10000;
+    [SerializeField] private float radius = 10;
+    [SerializeField] private Mesh copyMesh;
+    [SerializeField] private Material material;
+    [SerializeField] private Vector3 positionOffset;
 
     private Bounds bounds;
 
@@ -88,10 +88,10 @@ public class DrawMeshInstancedIndirect_demo : MonoBehaviour
                 Random.Range(-180, 180),
                 Random.Range(-180, 180)
             );
-            var size = Vector3.one;
+            var size = new Vector3(0.5f, 0.5f, 0.5f);
 
             props.mat = Matrix4x4.TRS(pos, rot, size);
-            props.color = Color.Lerp(Color.black, Color.white, Random.value);
+            props.color = Color.Lerp(Color.magenta, Color.cyan, Random.value);
 
             properties[i] = props;
         }

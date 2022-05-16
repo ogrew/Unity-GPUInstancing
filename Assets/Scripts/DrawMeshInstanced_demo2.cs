@@ -5,15 +5,16 @@ using UnityEngine.Rendering;
 
 public class DrawMeshInstanced_demo2 : MonoBehaviour
 {
-    public int count = 1000;
-    public float radius = 5;
-    public Mesh copyMesh;
-    public Material material;
-    public Vector3 positionOffset;
-
+    [SerializeField] private int count = 1000;
+    [SerializeField] private float radius = 5;
+    [SerializeField] private Mesh copyMesh;
+    [SerializeField] private Material material;
+    [SerializeField] private Vector3 positionOffset;
 
     private List<Matrix4x4[]> batches;
     private MaterialPropertyBlock block;
+
+    static readonly int MAX_CONT = 1023;
 
     private void Start()
     {
@@ -24,7 +25,7 @@ public class DrawMeshInstanced_demo2 : MonoBehaviour
     {
         foreach (var batch in batches)
         {
-            Graphics.DrawMeshInstanced(copyMesh, 0, material, batch, 1023, block);
+            Graphics.DrawMeshInstanced(copyMesh, 0, material, batch, MAX_CONT, block);
         }
     }
 
@@ -33,14 +34,14 @@ public class DrawMeshInstanced_demo2 : MonoBehaviour
         batches = new List<Matrix4x4[]>();
         block = new MaterialPropertyBlock();
 
-        var matrices = new Matrix4x4[1023];
+        var matrices = new Matrix4x4[MAX_CONT];
         Vector4[] colors = new Vector4[count];
 
         for (int i = 0; i < count; i++)
         {
-            if (i % 1023 == 0)
+            if (i % MAX_CONT == 0)
             {
-                matrices = new Matrix4x4[1023];
+                matrices = new Matrix4x4[MAX_CONT];
                 batches.Add(matrices);
             }
 
@@ -52,10 +53,10 @@ public class DrawMeshInstanced_demo2 : MonoBehaviour
             );
             Vector3 size = Vector3.one;
 
-            matrices[i % 1023].SetTRS(pos, rot, size);
-            matrices[i % 1023] = transform.localToWorldMatrix * matrices[i % 1023];
+            matrices[i % MAX_CONT].SetTRS(pos, rot, size);
+            matrices[i % MAX_CONT] = transform.localToWorldMatrix * matrices[i % MAX_CONT];
 
-            colors[i] = Color.Lerp(Color.white, Color.black, Random.value);
+            colors[i] = Color.Lerp(Color.magenta, Color.cyan, Random.value);
         }
 
         block.SetVectorArray("_Colors", colors);

@@ -5,10 +5,11 @@ using UnityEngine.Rendering;
 
 public class DrawMeshInstanced_demo : MonoBehaviour
 {
-    public int count = 1000;
-    public float radius = 5;
-    public Mesh copyMesh;
-    public Material material;
+    [SerializeField] private int count = 1000;
+    [SerializeField] private float radius = 5;
+    [SerializeField] private Mesh copyMesh;
+    [SerializeField] private Material material;
+    [SerializeField] private Vector3 positionOffset;
 
     private Matrix4x4[] matrices;
     private MaterialPropertyBlock block;
@@ -20,7 +21,7 @@ public class DrawMeshInstanced_demo : MonoBehaviour
 
     private void Update()
     {
-        Graphics.DrawMeshInstanced(copyMesh, 0, material, matrices, count, block, ShadowCastingMode.On, true, gameObject.layer);
+        Graphics.DrawMeshInstanced(copyMesh, 0, material, matrices, count, block);
     }
 
     private void SetUp()
@@ -32,7 +33,7 @@ public class DrawMeshInstanced_demo : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            Vector3 pos = Random.insideUnitSphere * radius;
+            Vector3 pos = Random.insideUnitSphere * radius + positionOffset;
 
             Quaternion rot = Quaternion.Euler(
                 Random.Range(-180, 180),
@@ -44,7 +45,7 @@ public class DrawMeshInstanced_demo : MonoBehaviour
             matrices[i].SetTRS(pos, rot, size);
             matrices[i] = transform.localToWorldMatrix * matrices[i];
 
-            colors[i] = Color.Lerp(Color.white, Color.black, Random.value);
+            colors[i] = Color.Lerp(Color.magenta, Color.cyan, Random.value);
         }
 
         block.SetVectorArray("_Colors", colors);
